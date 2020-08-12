@@ -7,7 +7,7 @@
 @inherits Blazor.Fluxor.Components.FluxorComponent
 @inject IDispatcher Dispatcher
 @inject IState<CounterState> CounterState
-
+@attribute [Authorize(Policy = "IsAdmin")]
 <h1>Counter</h1>
 
 <p>Current count: @CounterState.Value.CurrentCount</p>
@@ -18,24 +18,21 @@
 
 <ChildComponent>Hey I'm a child!</ChildComponent>
 
-@code {
-    
-    void MoveMeToHome()
-    {
-        NavigationManager.NavigateTo("/");
-    }
+@code { void MoveMeToHome()
+            {
+                NavigationManager.NavigateTo("/");
+            }
 
-    void IncrementCount()
-    {
-        Dispatcher.Dispatch(new IncrementCounterAction());
-    }
-    
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await VisitTrackingService.TrackVisitInLocal();
-            await VisitTrackingService.TrackVisitInSession();
-        }
-    }
-}
+            void IncrementCount()
+            {
+                Dispatcher.Dispatch(new IncrementCounterAction());
+            }
+
+            protected override async Task OnAfterRenderAsync(bool firstRender)
+            {
+                if (firstRender)
+                {
+                    await VisitTrackingService.TrackVisitInLocal();
+                    await VisitTrackingService.TrackVisitInSession();
+                }
+            } }

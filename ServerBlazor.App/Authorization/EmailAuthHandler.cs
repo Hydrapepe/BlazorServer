@@ -7,7 +7,7 @@ namespace ServerBlazor.Authorization
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, EmailRequirement requirement)
         {
-            if (context.User.Identity.Name.EndsWith(requirement.EmailSuffix))
+            if (context.User.Identity.Name != null && context.User.Identity.Name.EndsWith(requirement.EmailSuffix))
             {
                 context.Succeed(requirement);
             }
