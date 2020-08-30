@@ -1,0 +1,114 @@
+﻿@page "/Windows/AD"
+@inject IJSRuntime JsRuntime
+@attribute [Authorize]
+@attribute [Authorize]
+<p>
+    <label>IP: </label>
+    <input @bind="@_ipServer" />
+    <label>Mask(24): </label>
+    <input @bind="@_mask24" />
+    <label>Gateway: </label>
+    <input @bind="@_gateway" />
+    <label>Netbios: </label>
+    <input @bind="@_netbios" />
+</p>
+<p>
+    <label>Network: </label>
+    <input @bind="@_network" />
+    <label>Last byte: </label>
+    <input @bind="@_lastByte" />
+    <label>Server name: </label>
+    <input @bind="@_nameServer" />
+    <label>Domain Name: </label>
+    <input @bind="@_domainName" />
+</p>
+<p>
+    <label>Revers IP: </label>
+    <input @bind="@_reversIp" />
+    <label>Pool name: </label>
+    <input @bind="@_poolName" />
+    <label>Start range: </label>
+    <input @bind="@_startRange" />
+    <label>End range: </label>
+    <input @bind="@_endRange" />
+    <label>Mask(255): </label>
+    <input @bind="@_mask255" />
+</p>
+<button @onclick="Checker">Скачать файл!</button>
+@code
+{
+    private string _mask24 = "24";
+    private string _nameServer = "Server";
+    private string _poolName = "Pool";
+    private string _mask255 = "255.255.255.0";
+#pragma warning disable 649
+    private string _ipServer, _gateway, _netbios, _network, _lastByte, _domainName, _reversIp, _startRange, _endRange, _memory;
+#pragma warning restore 649
+
+
+    private void Checker()
+    {
+        if (_ipServer.Length == 0 || _mask24.Length == 0 || _gateway.Length == 0 || _netbios.Length == 0 || _network.Length == 0 || _lastByte.Length == 0 || _nameServer.Length == 0 || _domainName.Length == 0 || _reversIp.Length == 0 || _poolName.Length == 0 || _startRange.Length == 0 || _endRange.Length == 0 || _mask255.Length == 0) return;
+        _memory = "param ([int] $Stage=1)\n" +
+                  "function one\n" +
+                  "{\n" +
+                  "$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '$path\\AD.ps1 -Stage 2'\n" +
+                  "$trigger = New-ScheduledTaskTrigger -AtLogon\n" +
+                  "Register-ScheduledTask -Action $action -Trigger $trigger -TaskName \"PEPETEST1\"\n" +
+                  "New-NetIPAddress -InterfaceIndex 12 -IPAddress " + _ipServer + " –PrefixLength " + _mask24 + " -DefaultGateway " + _gateway + "\n" +
+                  "Set-DnsClientServerAddress -InterfaceIndex 12 -ServerAddresses " + _ipServer + ", " + _ipServer + "\n" +
+                  "Rename-Computer -NewName " + _nameServer + " -Force\nRestart-Computer -Force\n" +
+                  "}\n" +
+                  "function two \n" +
+                  "{" +
+                  "$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '$path\\AD.ps1 -Stage 3'\n" +
+                  "$trigger = New-ScheduledTaskTrigger -AtLogon\n" +
+                  "Register-ScheduledTask -Action $action -Trigger $trigger -TaskName \"PEPETEST2\"\n" +
+                  "Unregister-ScheduledTask -TaskName \"PEPETEST1\" -Confirm:$false\n" +
+                  "Import-Module ServerManager\n" +
+                  "Add-WindowsFeature –Name AD-Domain-Services –IncludeAllSubFeature –IncludeManagementTools\n" +
+                  "Import-Module ADDSDeployment\n" +
+                  "Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath \"C:\\Windows\\NTDS\" -DomainMode \"Win2012\" -DomainName \"" + _domainName + "\" -DomainNetbiosName " + _netbios + " -ForestMode \"Win2012\" -InstallDns:$true -LogPath \"C:\\Windows\\NTDS\" -NoRebootOnCompletion:$false -SysvolPath \"C:\\Windows\\SYSVOL\" -Force:$true -SafeModeAdministratorPassword (convertto-securestring Windows1 -asplaintext -force)\n" +
+                  "}\n" +
+                  "function three \n" +
+                  "{\n" +
+                  "Unregister-ScheduledTask -TaskName \"PEPETEST2\" -Confirm:$false\n" +
+                  "Add-DnsServerPrimaryZone -DynamicUpdate NonsecureAndSecure -NetworkId '" + _network + "/" + _mask24 + "' -ReplicationScope Domain\n" +
+                  "Add-DnsServerResourceRecordPtr -Name \"" + _lastByte + "\" -ZoneName \"" + _reversIp + ".in-addr.arpa\" -AgeRecord -PtrDomainName \"$env:COMPUTERNAME." + _domainName + "\"\n" +
+                  "Import-Module ServerManager\n" +
+                  "Add-WindowsFeature –Name DHCP –IncludeManagementTools\n" +
+                  "Add-DHCPServerSecurityGroup -ComputerName $env:COMPUTERNAME\n" +
+                  "Restart-Service dhcpserver\nAdd-DhcpServerInDC -DnsName $env:COMPUTERNAME -IPAddress " + _ipServer + "\n" +
+                  "$User = \"$env:USERDOMAIN\\$env:USERNAME\"\n" +
+                  "$PWord = ConvertTo-SecureString -String Windows1 -AsPlainText -Force\n" +
+                  "$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord\n" +
+                  "Set-DHCPServerDnsCredential -ComputerName $env:COMPUTERNAME -Credential $Credential\nAdd-DHCPServerv4Scope -Name " + _poolName + " -StartRange " + _startRange + " -EndRange " + _endRange + " -SubnetMask " + _mask255 + " -State Active\n" +
+                  "Set-DHCPServerv4OptionValue -ComputerName $env:COMPUTERNAME -DnsServer " + _ipServer + " -DnsDomain " + _domainName + " -Router " + _gateway + "\n" +
+                  "Set-DHCPServerv4OptionValue -ComputerName $env:COMPUTERNAME -ScopeId " + _network + " -DnsServer " + _ipServer + " -DnsDomain " + _domainName + " -Router " + _gateway + "\n" +
+                  "Restart-Computer -Force\n" +
+                  "}\n" +
+                  "$path = $pwd.path \n" +
+                  "if($Stage -eq 1) \n" +
+                  "{\n" +
+                  "one\n" +
+                  "}\n" +
+                  "if($Stage -eq 2) \n" +
+                  "{\n" +
+                  "two\n" +
+                  "}\n" +
+                  "if($Stage -eq 3) \n" +
+                  "{\n" +
+                  "three\n" +
+                  "}\n";
+        DownloadFile("AD.ps1", _memory);
+    }
+
+    private async void DownloadFile(string name, string content)
+    {
+        await JsRuntime.InvokeAsync<object>(
+            "FileSaveAs",
+            name,
+            content
+            );
+    }
+}

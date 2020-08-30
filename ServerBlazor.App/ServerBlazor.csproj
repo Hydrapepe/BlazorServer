@@ -20,6 +20,16 @@
     <_ContentIncludedByDefault Remove="wwwroot\css\site.css" />
     <_ContentIncludedByDefault Remove="wwwroot\favicon.ico" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Linux\AD_Linux.razor" />
+    <None Include="Pages\Windows\ADconfigurate.razor" />
+    <None Include="Pages\Windows\GPOConfigure.razor" />
+    <None Include="Pages\Windows\UserMain.razor" />
+    <None Include="Pages\Windows\User\UniqueUserCreature.razor" />
+    <None Include="Pages\Windows\User\UserCreature.razor" />
+    <None Include="Pages\Windows\User\UserCSV.razor" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Blazor.Fluxor" Version="2.0.1" />

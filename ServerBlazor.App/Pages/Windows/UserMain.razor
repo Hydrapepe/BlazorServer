@@ -1,0 +1,23 @@
+﻿@page "/Windows/User"
+@attribute [Authorize]
+<ul>
+    <li>
+        <NavLink class="nav-link" href="Windows/User/UserCSV">
+            CSV импорт генератор
+        </NavLink>
+    </li>
+    <li>
+        <NavLink class="nav-link" href="Windows/User/UserCreature">
+            Массовый генератор пользователей
+        </NavLink>
+    </li>
+    <li>
+        <NavLink class="nav-link" href="Windows/User/UniqueUserCreature">
+            Генератор уникальных пользовыателей
+        </NavLink>
+    </li>
+</ul>
+
+@code {
+
+}

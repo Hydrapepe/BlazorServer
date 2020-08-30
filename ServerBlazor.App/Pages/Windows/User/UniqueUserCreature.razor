@@ -1,0 +1,113 @@
+﻿@page "/Windows/User/UniqueUserCreature"
+@inject IJSRuntime JsRuntime
+@attribute [Authorize]
+<p>
+    <label>Domain name: </label>
+    <input @bind="@_domainName" />
+    <label>Name server: </label>
+    <input @bind="@_nameServer" />
+    <label>Password: </label>
+    <input @bind="@_password" />
+    <label>Login user: </label>
+    <input @bind="@_loginUser" />
+    <label>Name user: </label>
+    <input @bind="@_imyaUser" />
+<p></p>
+<label>Surname user: </label>
+<input @bind="@_famUser" />
+</p>
+
+<div class="alert alert-danger">
+    <label>Only if need new group!</label>
+    <p></p>
+    New group <input type="checkbox" checked=@_newGroup>
+    <label>Name group: </label>
+    <input @bind="@_nameGroup" />
+    <label>Name server: </label>
+    <input @bind="@_nameServer" />
+</div>
+<div class="alert alert-dark">
+    <label>Only if need to group!</label>
+    <p></p>
+    To group<input type="checkbox" checked=@_subs>
+    <label>OU(e.g. top_catalog_name\filing => filing\top_catalog_name): </label>
+    <input @bind="@_ou" />
+</div>
+<p>Total user: @_q</p>
+<p>
+    <button @onclick="Generate">Generate</button>
+    <button @onclick="Memory">Add user to generate</button>
+    <button @onclick="Zero">Zeroing</button>
+</p>
+
+@code {
+
+    private string AlertThemeNew => _darkThemeOnGroupNew ? "dark" : "light";
+    private string AlertTheme => _darkThemeOnGroup ? "dark" : "light";
+    private string _nameGroup, _nameServer, _domainName, _password, _loginUser, _imyaUser, _famUser, _serverDotSplit, _tempGroup, _tempAll, _serverNameFull, _ou;
+    bool _newGroup, _subs, _darkThemeOnGroupNew, _darkThemeOnGroup;
+    int _q;
+    void Zero()
+    {
+        _nameServer = _password = _famUser = _imyaUser = _loginUser = _serverNameFull = _domainName = _ou = _nameGroup = _tempAll = "";
+        _subs = _newGroup = _darkThemeOnGroupNew = _darkThemeOnGroup = false;
+        _q = 0;
+    }
+
+    void Memory()
+    {
+        _serverNameFull = _nameServer + "." + _domainName;
+        string[] words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        _serverDotSplit = words[0] = "DC=" + words[0];
+        for (int i = 1; i != words.Length; i++)
+        {
+            words[i] = ",DC=" + words[i];
+            _serverDotSplit += words[i];
+        }
+        if (_subs)
+        {
+            string[] pepe = _ou.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int count = 0; count != pepe.Length; count++)
+            {
+                pepe[count] = $"OU={pepe[count]},";
+                _serverDotSplit = pepe[count] + _serverDotSplit;
+            }
+            _tempAll +=
+$"$ou = \"{_serverDotSplit}\"\n" +
+$"$pass = ConvertTo-SecureString -String \"{_password}\" -AsPlainText -Force\n" +
+"New-AdUser -Path $ou -Name \"" + _loginUser + "\" -GivenName \"" + _imyaUser + "\" -Surname \"" + _famUser + "\" -SamAccountName \"" + _loginUser + "\" -UserPrincipalName \"" + _loginUser + "@" + _domainName + "\" -Path $org -Enabled $True -ChangePasswordAtLogon $true -AccountPassword (ConvertTo-SecureString \"" + _password + "\" -AsPlainText -force) -passThru\n";
+        }
+        else
+        {
+            if (_newGroup)
+            {
+                _tempGroup += "New-ADOrganizationalUnit -Name:\"" + _nameGroup + "\" -Path:\"" + _serverDotSplit + "\" -ProtectedFromAccidentalDeletion:$true -Server:\"" + _serverNameFull + "\"\n";
+
+                _tempAll += "$org=\"OU=" + _nameGroup + "," + _serverDotSplit + "\"" +
+                                                  "\n$count=1" +
+                                                  "\nforeach ($i in $count)\n{New-AdUser -Name \"" + _loginUser + "\" -GivenName \"" + _imyaUser + "\" -Surname \"" + _famUser + "\" -SamAccountName \"" + _loginUser + "\" -UserPrincipalName \"" + _loginUser + "@" + _domainName + "\" -Path $org -Enabled $True -ChangePasswordAtLogon $true -AccountPassword (ConvertTo-SecureString \"" + _password + "\" -AsPlainText -force) -passThru }\n";
+            }
+            else
+            {
+                _tempAll += "$org=\"" + _serverDotSplit + "\";\n$count=1;\nforeach ($i in $count)\n{New-AdUser -Name \"" + _loginUser + "\" -GivenName \"" + _loginUser + "\" -Surname \"" + _imyaUser + "\" -SamAccountName \"" + _famUser + "\" -UserPrincipalName \"" + _loginUser + "@" + _domainName + "\" -Path $org -Enabled $True -ChangePasswordAtLogon $true -AccountPassword (ConvertTo-SecureString \"" + _password + "\" -AsPlainText -force) -passThru }\n";
+            }
+        }
+        _q++;
+        _nameServer = _password = _famUser = _imyaUser = _loginUser = _serverNameFull = _domainName = _ou = _nameGroup = _tempAll = "";
+        _subs = _newGroup = false;
+    }
+    void Generate()
+    {
+        var generateFile = _tempGroup + _tempAll;
+        DownloadFile("GUU.ps1", generateFile);
+    }
+
+    private async void DownloadFile(string name, string content)
+    {
+        await JsRuntime.InvokeAsync<object>(
+            "FileSaveAs",
+            name,
+            content
+        );
+    }
+}

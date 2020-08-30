@@ -21,7 +21,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ServerBlazor.Authorization;
 using ServerBlazor.Data;
-using ServerBlazor.Services;
 
 namespace ServerBlazor
 {
@@ -45,7 +44,6 @@ namespace ServerBlazor
             
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            //services.AddSignalR().AddAzureSignalR();
 
             services.AddAuthorization(options =>
             {
@@ -56,12 +54,9 @@ namespace ServerBlazor
             services.AddSingleton<IAuthorizationHandler, EmailAuthHandler>();
             
             services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-            services.AddSingleton<WeatherForecastService>();
-            services.AddScoped<RandomService>();
 
             services.AddBlazoredLocalStorage();
             services.AddBlazoredSessionStorage();
-            services.AddScoped<VisitTrackingService>();
 
             services.AddFluxor(options =>
             {
