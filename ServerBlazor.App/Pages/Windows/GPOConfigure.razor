@@ -85,14 +85,14 @@
 
     void Generate()
     {
-        string[] memory = new string[7] { "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Policies\\Microsoft\\Windows\\System\" -ValueName DisableCMD -Type DWord -Value 1\n",
+        string[] memory = { "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Policies\\Microsoft\\Windows\\System\" -ValueName DisableCMD -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName NoRun -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" -ValueName DisableRegistryTools -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName NoControlPanel -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName ScreenSaveActive -Type String -Value 0\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\ActiveDesktop\" -ValueName NoChangingWallPaper -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\" -ValueName EnableFirstLogonAnimation  -Type DWord -Value 0\n"};
-        string[] words = _domainName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
         _serverDotSplit = words[0] = "OU=" + _nameGroup + ",DC=" + words[0];
         for (int i = 1; i != words.Length; i++)
         {
@@ -108,20 +108,19 @@
                 text += memory[i];
             }
         }
-
+        DownloadFile("GPO.ps1", text);
     }
-
 
     void Generate_ALL()
     {
-        string[] memory = new string[7] { "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Policies\\Microsoft\\Windows\\System\" -ValueName DisableCMD -Type DWord -Value 1\n",
+        string[] memory = { "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Policies\\Microsoft\\Windows\\System\" -ValueName DisableCMD -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName NoRun -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" -ValueName DisableRegistryTools -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName NoControlPanel -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName ScreenSaveActive -Type String -Value 0\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\ActiveDesktop\" -ValueName NoChangingWallPaper -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\" -ValueName EnableFirstLogonAnimation  -Type DWord -Value 0\n"};
-        string[] words = _domainName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
         _serverDotSplit = words[0] = "OU=" + _nameGroup + ",DC=" + words[0];
         for (int i = 1; i != words.Length; i++)
         {
@@ -136,7 +135,7 @@
         DownloadFile("GPO.ps1", text);
     }
 
-    protected async void DownloadFile(string name, string content)
+    private async void DownloadFile(string name, string content)
     {
         await JsRuntime.InvokeAsync<object>(
             "FileSaveAs",

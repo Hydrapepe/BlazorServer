@@ -42,15 +42,13 @@
 
 @code {
 
-    private string AlertThemeNew => _darkThemeOnGroupNew ? "dark" : "light";
-    private string AlertTheme => _darkThemeOnGroup ? "dark" : "light";
     private string _nameGroup, _nameServer, _domainName, _password, _loginUser, _imyaUser, _famUser, _serverDotSplit, _tempGroup, _tempAll, _serverNameFull, _ou;
-    bool _newGroup, _subs, _darkThemeOnGroupNew, _darkThemeOnGroup;
+    bool _newGroup, _subs;
     int _q;
     void Zero()
     {
         _nameServer = _password = _famUser = _imyaUser = _loginUser = _serverNameFull = _domainName = _ou = _nameGroup = _tempAll = "";
-        _subs = _newGroup = _darkThemeOnGroupNew = _darkThemeOnGroup = false;
+        _subs = _newGroup = false;
         _q = 0;
     }
 
