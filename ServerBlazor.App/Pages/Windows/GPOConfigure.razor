@@ -1,86 +1,65 @@
 ﻿@page "/Windows/GPOConfigure"
 @inject IJSRuntime JsRuntime
 @attribute [Authorize]
-
-
-<div class="block_Main201">
-    <p>Имя политики</p>
+<p>
+    <label>Name Polisy: </label>
     <input @bind="@_namePolisy" />
-</div>
-<div class="block_Main202">
-    <p>Имя репресируемой группы</p>
+    <label>Repressed group name: </label>
     <input @bind="@_nameGroup" />
-</div>
-<div class="block_Main203">
-    <p>Доменное имя</p>
+    <label>Domain name: </label>
     <input @bind="@_domainName" />
-</div>
-<div class="block_Main204">
-    <input type="checkbox" value="false" @onchange="EventArgs1"> Бан консоли
-</div>
-<div class="block_Main205">
-    <input type="checkbox" value="false" @onchange="EventArgs2"> Бан выполнить(win+ R)
-</div>
-<div class="block_Main206">
-    <input type="checkbox" value="false" @onchange="EventArgs3"> Бан редактора реестра
-</div>
-<div class="block_Main207">
-    <input type="checkbox" value="false" @onchange="EventArgs4"> Бан панели управления
-</div>
-<div class="block_Main208">
-    <input type="checkbox" value="false" @onchange="EventArgs5"> Бан экранной заставки
-</div>
-<div class="block_Main209">
-    <input type="checkbox" value="false" @onchange="EventArgs6"> Бан бан обоев
-</div>
-<div class="block_Main210">
-    <input type="checkbox" value="false" @onchange="EventArgs7"> Бан на первую заставку(Win10 может не робить)
-</div>
-<div class="block_Main220">
-    <button class="btn btn-primary" @onclick="Generate">БЭН</button>
-</div>
-<div class="block_Main221">
-    <button class="btn btn-primary" @onclick="Generate_ALL">Мега БЭН</button>
-</div>
-
-
-
-
-
-
-
-
+</p>
+Ban CMD
+<input type="checkbox" @onchange="EventArgs1">
+Ban execute(Win+R)
+<input type="checkbox" @onchange="EventArgs2">
+Ban registry editor
+<input type="checkbox" @onchange="EventArgs3">
+Ban control panels
+<input type="checkbox" @onchange="EventArgs4">
+Ban screen saver
+<input type="checkbox" @onchange="EventArgs5">
+Ban wallpaper
+<input type="checkbox" @onchange="EventArgs6">
+Ban on the first splash screen (Win10 mayn't be work)
+<input type="checkbox" @onchange="EventArgs7">
+<p>
+    <button @onclick="Generate">Ban</button>
+    <button @onclick="Generate_ALL">MEGA BAN</button>
+</p>
 @code {
-    public bool[] Pepe = new bool[7] { false, false, false, false, false, false, false };
+    private readonly bool[] _pepe = { false, false, false, false, false, false, false };
 
+#pragma warning disable 649
     private string _namePolisy, _nameGroup, _domainName, _serverDotSplit;
+#pragma warning restore 649
     void EventArgs1()
     {
-        Pepe[0] = true;
+        _pepe[0] = true;
     }
     void EventArgs2()
     {
-        Pepe[1] = true;
+        _pepe[1] = true;
     }
     void EventArgs3()
     {
-        Pepe[2] = true;
+        _pepe[2] = true;
     }
     void EventArgs4()
     {
-        Pepe[3] = true;
+        _pepe[3] = true;
     }
     void EventArgs5()
     {
-        Pepe[4] = true;
+        _pepe[4] = true;
     }
     void EventArgs6()
     {
-        Pepe[5] = true;
+        _pepe[5] = true;
     }
     void EventArgs7()
     {
-        Pepe[6] = true;
+        _pepe[6] = true;
     }
 
     void Generate()
@@ -92,18 +71,18 @@
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName ScreenSaveActive -Type String -Value 0\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\ActiveDesktop\" -ValueName NoChangingWallPaper -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\" -ValueName EnableFirstLogonAnimation  -Type DWord -Value 0\n"};
-        string[] words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        var words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
         _serverDotSplit = words[0] = "OU=" + _nameGroup + ",DC=" + words[0];
-        for (int i = 1; i != words.Length; i++)
+        for (var i = 1; i != words.Length; i++)
         {
             words[i] = ",DC=" + words[i];
             _serverDotSplit += words[i];
         }
 
-        string text = "New-GPO -Name \"" + _namePolisy + "\" | New-GPLink -Target \"" + _serverDotSplit + "\"\n";
-        for (int i = 0; i != Pepe.Length; i++)
+        var text = "New-GPO -Name \"" + _namePolisy + "\" | New-GPLink -Target \"" + _serverDotSplit + "\"\n";
+        for (var i = 0; i != _pepe.Length; i++)
         {
-            if (Pepe[i])
+            if (_pepe[i])
             {
                 text += memory[i];
             }
@@ -120,15 +99,15 @@
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" -ValueName ScreenSaveActive -Type String -Value 0\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\ActiveDesktop\" -ValueName NoChangingWallPaper -Type DWord -Value 1\n",
         "Set-GPRegistryValue -Name \"" + _namePolisy + "\" -Key \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\" -ValueName EnableFirstLogonAnimation  -Type DWord -Value 0\n"};
-        string[] words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        var words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
         _serverDotSplit = words[0] = "OU=" + _nameGroup + ",DC=" + words[0];
-        for (int i = 1; i != words.Length; i++)
+        for (var i = 1; i != words.Length; i++)
         {
             words[i] = ",DC=" + words[i];
             _serverDotSplit += words[i];
         }
-        string text = "New-GPO -Name \"" + _namePolisy + "\" | New-GPLink -Target \"" + _serverDotSplit + "\"\n";
-        for (int i = 0; i != Pepe.Length; i++)
+        var text = "New-GPO -Name \"" + _namePolisy + "\" | New-GPLink -Target \"" + _serverDotSplit + "\"\n";
+        for (var i = 0; i != _pepe.Length; i++)
         {
             text += memory[i];
         }

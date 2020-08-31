@@ -1,7 +1,6 @@
 ﻿@page "/Windows/AD"
 @inject IJSRuntime JsRuntime
 @attribute [Authorize]
-@attribute [Authorize]
 <p>
     <label>IP: </label>
     <input @bind="@_ipServer" />
@@ -34,7 +33,7 @@
     <label>Mask(255): </label>
     <input @bind="@_mask255" />
 </p>
-<button @onclick="Checker">Скачать файл!</button>
+<button @onclick="Checker">Download file</button>
 @code
 {
     private string _mask24 = "24";

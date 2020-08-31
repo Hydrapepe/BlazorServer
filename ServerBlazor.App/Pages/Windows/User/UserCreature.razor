@@ -1,78 +1,49 @@
 ﻿@page "/Windows/User/UserCreature"
 @inject IJSRuntime JsRuntime
 @attribute [Authorize]
-<div class="block_Main02021">
-    Заполнять только если нужна новая группа
-    <div class="block_Main020201">
-        <input type="checkbox" checked=@_newGroup onchange=neww> Нужна новая группа
-    </div>
-    <div class="block_Main020202">
-        <p>Имя группы</p>
-        <input @bind="@_nameGroup" />
-    </div>
-    <div class="block_Main020203">
-        <p>Имя сервера</p>
-        <input @bind="@_nameServer" />
-    </div>
-</div>
-<div class="block_Main02022">
-    <div class="block_Main020204">
-        <p>Доменное имя</p>
-        <input @bind="@_domainName" />
-    </div>
-    <div class="block_Main020205">
-        <p>Пароль</p>
-        <input @bind="@_password" />
-    </div>
-    <div class="block_Main020206">
-        <p>Логин юзера</p>
-        <input @bind="@_loginUser" />
-    </div>
-    <div class="block_Main020207">
-        <p>Имя юзеров</p>
-        <input @bind="@_imyaUser" />
-    </div>
-    <div class="block_Main020208">
-        <p>Фамилия юзеров</p>
-        <input @bind="@_famUser" />
-    </div>
-    <div class="block_Main020209">
-        <p>Сколько надо сгенерировать юзеров</p>
-        <input @bind="@_number" />
-    </div>
-</div>
-<div class="block_Main02023">
-    <div class="block_Main020210">
-        <button class="btn btn-primary" @onclick="Generate">Сгенерировать</button>
-    </div>
-    <div class="block_Main020211">
-        <button class="btn btn-primary" @onclick="Zero">Обнулить</button>
-    </div>
-</div>
-<div class="block_Main02024">
-    <div class="block_Main020212">
-        <input type="checkbox" checked=@_subs onclick=sub> Добавить в существующую группу
-        <p>Организационная единица(Вводить обратно через \ . Например PEPE\TEST вводить TEST\PEPE)</p>
-        <input @bind="@_ou" />
-    </div>
-</div>
+<p>
+    <label>Domain name: </label>
+    <input @bind="@_domainName" />
+    <label>Name server: </label>
+    <input @bind="@_nameServer" />
+    <label>Password: </label>
+    <input @bind="@_password" />
+    <label>Login user: </label>
+    <input @bind="@_loginUser" />
+    <label>Name user: </label>
+    <input @bind="@_imyaUser" />
+    <p></p>
+    <label>How many user need: </label>
+    <input @bind="@_number" />
+    <label>Surname user: </label>
+    <input @bind="@_famUser" />
+</p>
 
-
-
-
+<div class="alert alert-danger">
+    <label>Only if need new group!</label>
+    <p></p>
+    New group <input type="checkbox" checked=@_newGroup>
+    <label>Name group: </label>
+    <input @bind="@_nameGroup" />
+    <label>Name server: </label>
+    <input @bind="@_nameServer" />
+</div>
+<div class="alert alert-dark">
+    <label>Only if need to group!</label>
+    <p></p>
+    To group<input type="checkbox" checked=@_subs>
+    <label>OU(e.g. top_catalog_name\filing => filing\top_catalog_name): </label>
+    <input @bind="@_ou" />
+</div>
+<p>
+    <button @onclick="Generate">Generate</button>
+    <button @onclick="Zero">Zeroing</button>
+</p>
 @code {
     private string _nameGroup, _nameServer, _domainName, _password, _loginUser, _imyaUser, _famUser, _serverDotSplit, _tempGroup, _tempAll, _serverNameFull, _ou;
-    bool _newGroup = false;
-    bool _subs = false;
+    bool _newGroup, _subs;
     int _number = 1;
-    void Neww()
-    {
-        _newGroup = true;
-    }
-    void Sub()
-    {
-        _subs = true;
-    }
+
     void Zero()
     {
         _nameServer = _password = _famUser = _imyaUser = _loginUser = _serverNameFull = _domainName = _nameGroup = _tempAll = _serverDotSplit = _tempGroup = _ou = "";
@@ -82,17 +53,17 @@
     void Generate()
     {
         _serverNameFull = _nameServer + "." + _domainName;
-        string[] words = _domainName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        var words = _domainName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
         _serverDotSplit = words[0] = "DC=" + words[0];
-        for (int i = 1; i != words.Length; i++)
+        for (var i = 1; i != words.Length; i++)
         {
             words[i] = ",DC=" + words[i];
             _serverDotSplit += words[i];
         }
-        if (_subs == true)
+        if (_subs)
         {
-            string[] pepe = _ou.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
-            for (int count = 0; count != pepe.Length; count++)
+            var pepe = _ou.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            for (var count = 0; count != pepe.Length; count++)
             {
                 pepe[count] = $"OU={pepe[count]},";
                 _serverDotSplit = pepe[count] + _serverDotSplit;
@@ -105,7 +76,7 @@ $"$pass = ConvertTo-SecureString -String \"{_password}\" -AsPlainText -Force\n" 
         }
         else
         {
-            if (_newGroup == true)
+            if (_newGroup)
             {
                 _tempGroup = _tempGroup + "New-ADOrganizationalUnit -Name:\"" + _nameGroup + "\" -Path:\"" + _serverDotSplit + "\" -ProtectedFromAccidentalDeletion:$true -Server:\"" + _serverNameFull + "\"\n";
 
@@ -118,11 +89,12 @@ $"$pass = ConvertTo-SecureString -String \"{_password}\" -AsPlainText -Force\n" 
                 _tempAll = "$org=\"" + _serverDotSplit + "\";\n$count=1;\nforeach ($i in $count)\n{New-AdUser -Name \"" + _loginUser + "\" -GivenName \"" + _loginUser + "\" -Surname \"" + _imyaUser + "\" -SamAccountName \"" + _famUser + "\" -UserPrincipalName \"" + _loginUser + "@" + _domainName + "\" -Path $org -Enabled $True -ChangePasswordAtLogon $true -AccountPassword (ConvertTo-SecureString \"" + _password + "\" -AsPlainText -force) -passThru }";
             }
         }
-        string goTo = _tempGroup + _tempAll;
+        var goTo = _tempGroup + _tempAll;
         DownloadFile("GU.ps1", goTo);
         Zero();
     }
-    public async void DownloadFile(string name, string content)
+
+    private async void DownloadFile(string name, string content)
     {
         await JsRuntime.InvokeAsync<object>(
             "FileSaveAs",

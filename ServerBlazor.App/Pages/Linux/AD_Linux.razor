@@ -1,49 +1,41 @@
 ﻿@page "/Linux/AD"
 @using System.Globalization
 @inject IJSRuntime JsRuntime
-<div class="block_Main0301">
-    <div class="block_Main030101">
-        <p>Доменное имя</p>
-        <input @bind="@_domainNameFull" />
-    </div>
-    <div class="block_Main030102">
-        <p>Ip сервера</p>
-        <input @bind="@_ipAddress" />
-    </div>
-    <div class="block_Main030103">
-        <p>Имя юзера</p>
-        <input @bind="@_nameUser" />
-    </div>
-</div>
-<div class="block_Main0302">
-    <div class="block_Main030104">
-        <button class="btn btn-primary" @onclick="Zero">Обнулить</button>
-    </div>
-    <div class="block_Main030105">
-        <button class="btn btn-primary" @onclick="Main">Сгенерировать</button>
-    </div>
-</div>
-    @code {
-        string _ipAddress, _nameUser, _domainNameFull, _rele, _workgroup;
-        void Zero()
-        {
-            _ipAddress = _nameUser = _domainNameFull = _rele = _workgroup = "";
-        }
-        void Main()
-        {
-            string[] words = _domainNameFull.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-            _workgroup = words[0].ToUpper(new CultureInfo("en-US", false));
-            _domainNameFull = _domainNameFull.ToUpper(new CultureInfo("en-US", false));
-            _rele = "#!/bin/bash\nadusername='" + _nameUser + "'\nip='" + _ipAddress + "'\ndomain='" + words[0] + "'\nworkgroup='" + _workgroup + "'\nrealm='" + _domainNameFull + "'\napt update\napt install net-tools -y\napt install postfix dovecot-dev -y\napt install krb5-user samba winbind -y\nrm -rf /etc/resolv.conf\necho -e \"domain $domain\\nsearch $domain\\nnameserver $ip\" > /etc/resolv.conf\nsed - i 's/WORKGROUP/'$workgroup'/' / etc / samba / smb.conf\nsed -i '/Networking/a realm = '$realm'' /etc/samba/smb.conf\nsed -i 's/standalone server/member server/' /etc/samba/smb.conf\necho '**************************************'\necho 'Vvedite parol ot uchetki Active Directory'\necho '**************************************'\nnet ads join -U $adusername -D $realm\necho ''\necho '**************************************'\necho 'Informaciya o Domene'\necho '**************************************'\nnet ads info";
-            DownloadFile("Linux_AD.sh", _rele);
-            Zero();
-        }
-        public async void DownloadFile(string name, string content)
-        {
-            await JsRuntime.InvokeAsync<object>(
-                "FileSaveAs",
-                name,
-                content
-            );
-        }
+@attribute [Authorize]
+<p>
+    <label>IP: </label>
+    <input @bind="@_ipAddress" />
+    <label>Domain name: </label>
+    <input @bind="@_domainNameFull" />
+    <label>Name user(AD): </label>
+    <input @bind="@_nameUser" />
+</p>
+<p>
+    <button @onclick="Main">Generate</button>
+    <button @onclick="Zero">Zeroing</button>
+</p>
+@code {
+    string _ipAddress, _nameUser, _domainNameFull, _rele, _workgroup;
+    void Zero()
+    {
+        _ipAddress = _nameUser = _domainNameFull = _rele = _workgroup = "";
     }
+    void Main()
+    {
+        var words = _domainNameFull.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        _workgroup = words[0].ToUpper(new CultureInfo("en-US", false));
+        _domainNameFull = _domainNameFull.ToUpper(new CultureInfo("en-US", false));
+        _rele = "#!/bin/bash\nadusername='" + _nameUser + "'\nip='" + _ipAddress + "'\ndomain='" + words[0] + "'\nworkgroup='" + _workgroup + "'\nrealm='" + _domainNameFull + "'\napt update\napt install net-tools -y\napt install postfix dovecot-dev -y\napt install krb5-user samba winbind -y\nrm -rf /etc/resolv.conf\necho -e \"domain $domain\\nsearch $domain\\nnameserver $ip\" > /etc/resolv.conf\nsed - i 's/WORKGROUP/'$workgroup'/' / etc / samba / smb.conf\nsed -i '/Networking/a realm = '$realm'' /etc/samba/smb.conf\nsed -i 's/standalone server/member server/' /etc/samba/smb.conf\necho '**************************************'\necho 'Vvedite parol ot uchetki Active Directory'\necho '**************************************'\nnet ads join -U $adusername -D $realm\necho ''\necho '**************************************'\necho 'Informaciya o Domene'\necho '**************************************'\nnet ads info";
+        DownloadFile("Linux_AD.sh", _rele);
+        Zero();
+    }
+
+    private async void DownloadFile(string name, string content)
+    {
+        await JsRuntime.InvokeAsync<object>(
+            "FileSaveAs",
+            name,
+            content
+        );
+    }
+}
