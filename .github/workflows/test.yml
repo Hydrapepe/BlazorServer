@@ -20,5 +20,5 @@ jobs:
             ACCESS_TOKEN: $
             BASE_BRANCH: master
             BRANCH: gh-pages # The branch the action should deploy to.
-            FOLDER: build/BlazorGame/dist # The folder the action should deploy.
+            FOLDER: test/dist # The folder the action should deploy.
             CLEAN: true
