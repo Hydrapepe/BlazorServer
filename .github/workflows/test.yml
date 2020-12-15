@@ -19,20 +19,15 @@ jobs:
     needs: [build] # The second job must depend on the first one to complete before running, and uses ubuntu-latest instead of windows.
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Download Artifacts # The built project is downloaded into the 'site' folder.
+        uses: actions/download-artifact@v1
         with:
-          persist-credentials: false
+          name: site
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1
         with: 
           dotnet-version: 3.1
-
-      - name: Download Artifacts # The built project is downloaded into the 'site' folder.
-        uses: actions/download-artifact@v1
-        with:
-          name: site
 
       - name: Publish .NET Core Project
         run: dotnet publish ServerBlazor.csproj -c Release -o release  --nologo
@@ -42,5 +37,4 @@ jobs:
         with:
           ACCESS_TOKEN: ${{ secrets.QQ }}
           BRANCH: gh-pages
-          FOLDER: release/wwwroot
-          #
+          FOLDER: build
