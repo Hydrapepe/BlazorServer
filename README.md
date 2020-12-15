@@ -1,1 +1,1 @@
-# BlazorServer
+# BlazorServer V2
