@@ -1,0 +1,92 @@
+﻿@page "/RED"
+<h3>Cписок пакетов</h3>
+<h4>SERVER</h4>
+<h5>apt install samba krb5-user postfix mailutils dovecot-pop3d winbind isc-dhcp-server smbclient</h5>
+<h4>CLI</h4>
+<h5>apt install postfix mailutils dovecot-pop3d smbclient krb5-user(аккуратно может повредить систему)</h5>
+<h3>------</h3>
+<h3>Примеры интерфейсов</h3>
+<h4>Статика</h4>
+<h5> allow-hotplug ens33</h5>
+<h5> iface ens33 inet static</h5>
+<h5> address 192.168.1.1\24</h5>
+<h5> gateway 192.168.1.1</h5>
+<h5> dns-nameservers 192.168.1.1</h5>
+<h5> dns-search pepega.net</h5>
+<h4>Дхцп</h4>
+<h5>auto ens33</h5>
+<h5>iface ens33 inet dhcp</h5>
+<h3>------</h3>
+<h3>Настройка самбы</h3>
+<h5>   cp /etc/samba/smb.conf /etc/samba/smb.conf.old \бэкапы для казуалов кста\</h5>
+<h5>   rm /etc/samba/smb.conf</h5>
+<h5>   /настройка через самбу ад дс если вы ставите через обычную то хз шо делат/</h5>
+<h5>   samba-tool domain provision --use-rfc2307 --interactive</h5>
+<h5>   systemctl unmask samba-ad-dc.service</h5>
+<h5>   systemctl enable samba-ad-dc.service</h5>
+<h5>   service smbd winbind stop</h5>
+<h5>   systemctl mask smbd winbind</h5>
+<h5>   systemctl disable smbd winbind</h5>
+<h5>   service samba-ad-dc start</h5>
+<h4>Создание реверс зоны возможно не обязательно хз делайте на свой страх и риск</h4>h4>
+<h5>samba-tool dns zonecreate net.lan 0.168.192.in-addr.arpa</h5>
+<h5>samba-tool dns add net.lan 0.168.192.in-addr.arpa 251 PTR dc0.net.lan</h5>
+<h3>------</h3>
+<h3>ТОЛЬКО ЕСЛИ в настройке сабы выбран не днс сабы а бинд9</h3>
+<h5>apt install bind9 net-tools dnsutils cifs-utils</h5>
+<h5>nano /etc/bind/named.conf.default-zones</h5>
+<h5>(/etc/bind)cp db.local taras365.net</h5>
+<h5>(/etc/bind)nano taras365.net</h5>
+<h5>(/etc/bind)cp db.127 192</h5>
+<h5>nano 192 (задом наперед)</h5>
+<h5>*назначение прав*chown bind:bind /etc/taras365.net</h5>
+<h5>chown bind:bind /etc/bind/192</h5>
+<h5>systemctl restart bind9/systemctl status</h5>
+<h5>nano /etc/resolv.conf</h5>
+<h5>nano /etc/systemd/resolved.conf</h5>
+<h5>systemctl enable/status/restart systemd-resolved.service</h5>
+<h3>------</h3>
+<h3>Проверка лица</h3>
+<h5>smbclient -L localhost -U%</h5>
+<h5>kinit Administrator</h5>
+<h3>------</h3>
+<h3>DHCP</h3>
+<h5>ток переписать строки</h5>
+<h5> /etc/dhcp/dhcpd.conf</h5>
+<h5>  option domain-name "(сюда доменное имя)pepega.net"</h5>
+<h5>   option domain-name-servers 192.168.1.1;</h5>
+<h5>  далее раскоменитить базовый пример подсети или дописать свой</h5>
+<h5>   subnet 192.168.1.0 netmask 255.255.255.0 {</h5>
+<h5>  range 192.168.1.10 192.168.1.20;</h5>
+<h5>   optoin routers 192.168.1.1;</h5>
+<h5>    }</h5>
+<h5> тут ток строку закоментить и имя интерфейса дописать</h5>
+<h5>  /etc/default/isc-dhcp-server</h5>
+<h5>   в интерфейс версии 4 вписать свой (INTERFACESv4="ens33")</h5>
+<h5>    а версии 6 закоментить(#)\удалить строку</h5>
+<h5> servise isc-dhcp-server restart</h5>
+<h3>------</h3>
+<h3>MAIL</h3>
+<h5>mail -s "\вроде тут тема но не уверен\" (имя юзера@фулл FQDN имя) root@server.pepega.net</h5>
+<h5>проверять полученную почту в /var/mail/(от кого пришло)</h5>
+<h3>------</h3>
+<h3>Samba папки etc.</h3>
+<h5>создайть папку</h5>
+<h5>useradd pepega</h5>
+<h5>smbpasswd -a pepega</h5>
+<h5>в /etc/samb/smb.conf добавить папки </h5>
+<h5>[Share] </h5>
+<h5>Browseable = yes </h5>
+<h5>Path = /etc/share </h5>
+<h5>Read only = no </h5>
+<h5>Create mask= (755 чтение)(777 фул доступ)(711 ток исполнение) </h5>
+<h5>Chmod 777 /etc/share </h5>
+<h3>------</h3>
+<h3>Как робят права</h3>
+<h5>BCD</h5>
+<h5>B for creator</h5>
+<h5>C for group</h5>
+<h5>D for other</h5>
+<h5>4(read)\2(write)\1(exe) => 6 = write + read etc.</h5>
+<h5>EX</h5>
+<h5>read only 755; write only 733; full 777;</h5>

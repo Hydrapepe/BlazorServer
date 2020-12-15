@@ -3,42 +3,27 @@ using Blazor.Fluxor.ReduxDevTools;
 using Blazor.Fluxor.Routing;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ServerBlazor.Authorization;
-using ServerBlazor.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace ServerBlazor
 {
     public class Startup
     {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+        private IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite("DataSource=app.db"));
-            
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>();
-            
             services.AddRazorPages();
             services.AddServerSideBlazor();
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("IsAdmin", policy => 
-                    policy.AddRequirements(new EmailRequirement("pepega.com")));
-            });
-
-            services.AddSingleton<IAuthorizationHandler, EmailAuthHandler>();
-            
             services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
             services.AddBlazoredLocalStorage();
@@ -50,6 +35,7 @@ namespace ServerBlazor
                 options.AddMiddleware<ReduxDevToolsMiddleware>();
                 options.AddMiddleware<RoutingMiddleware>();
             });
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
