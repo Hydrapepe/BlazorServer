@@ -40,6 +40,6 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
-          ACCESS_TOKEN: ${{62fd1ee584e6aeafbcc2f2e113c6e6d273de02ef}}
+          ACCESS_TOKEN: ${{ 62fd1ee584e6aeafbcc2f2e113c6e6d273de02ef }}
           BRANCH: gh-pages
           FOLDER: release/wwwroot
