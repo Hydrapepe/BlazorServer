@@ -35,7 +35,7 @@ jobs:
           name: site
 
       - name: Publish .NET Core Project
-        run: dotnet publish ServerBlazor.csproj -c Debug -o release  --nologo
+        run: dotnet publish ServerBlazor.csproj -c Release -o release  --nologo
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1
