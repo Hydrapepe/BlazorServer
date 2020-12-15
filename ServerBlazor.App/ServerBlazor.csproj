@@ -48,6 +48,10 @@
     </PackageReference>
   </ItemGroup>
   
+  <ItemGroup>
+    <Folder Include="test\" />
+  </ItemGroup>
+  
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptJSXEmit>React</TypeScriptJSXEmit>
