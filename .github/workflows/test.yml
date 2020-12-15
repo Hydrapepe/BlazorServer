@@ -40,7 +40,7 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
-          ACCESS_TOKEN: ${{ a91c628923a12804e769c573412437328b20aa11 }}
+          ACCESS_TOKEN: ${{ secrets.QQ }}
           BRANCH: gh-pages
           FOLDER: release/wwwroot
           #
