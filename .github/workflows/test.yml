@@ -1,5 +1,7 @@
 ﻿name: Build and Deploy
-on: [push]
+on: 
+    push:
+    branches: [ master ]
 jobs:
   build:
     runs-on: windows-latest # The first job utilizes windows-latest
@@ -15,7 +17,7 @@ jobs:
           name: site
           path: build
 
-  deploy:
+  deploy-to-github-pages:
     needs: [build] # The second job must depend on the first one to complete before running, and uses ubuntu-latest instead of windows.
     runs-on: ubuntu-latest
     steps:
@@ -24,14 +26,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1
+        with:
+        dotnet-version: 3.1
+
       - name: Download Artifacts # The built project is downloaded into the 'site' folder.
         uses: actions/download-artifact@v1
         with:
           name: site
+
+      - name: Publish .NET Core Project
+        run: dotnet publish ServerBlazor.csproj -c Debug -o release  --nologo
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           ACCESS_TOKEN: ${{62fd1ee584e6aeafbcc2f2e113c6e6d273de02ef}}
           BRANCH: gh-pages
-          FOLDER: "site" # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
+          FOLDER: release/wwwroot
