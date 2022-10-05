@@ -1,1 +1,1 @@
-# BlazorServer V2
+# BlazorServer V2 test hot patch
